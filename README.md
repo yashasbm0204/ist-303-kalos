@@ -1,5 +1,9 @@
 # Personal Finance Management Application
 
+## 1. Team members(alphabetical order): Allegra Fass, Yashas Basavaraju Mahesh, Nan Zhao
+
+---
+
 ## 2. Concept for the Application
 We propose developing a **personal finance management application** that allows users to track their expenses and income, set budgets, and monitor savings goals. The application will provide a clear overview of money-in/money-out and offer visualizations to help users make better financial decisions.
 
