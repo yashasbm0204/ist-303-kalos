@@ -1,6 +1,6 @@
 # Personal Finance Management Application
 
-## 1. Team members(alphabetical order): Allegra Fass, Yashas Basavaraju Mahesh, Nan Zhao
+## 1. Team members(alphabetical order): Allegra Fass, Yashas Basavaraju Mahesh, Kritten Yleah, Nan Zhao
 
 ---
 
