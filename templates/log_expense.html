@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log New Expense</title>
+</head>
+<body>
+    <h1>Record Actual Expense</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" value="{{ current_date }}" required>
+        </div>
+        
+        <div>
+            <label for="category">Category:</label>
+            <!-- Users can type a new category or select from the list -->
+            <input list="categories_list" id="category" name="category" placeholder="Type or select a category" required>
+            <datalist id="categories_list">
+                <!-- Populated with ALL unique categories ever used -->
+                {% for cat in categories %}
+                    <option value="{{ cat }}">
+                {% endfor %}
+            </datalist>
+        </div>
+        
+        <div>
+            <label for="amount">Amount ($):</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
+        </div>
+        
+        <div>
+            <label for="notes">Notes (Optional):</label>
+            <textarea id="notes" name="notes" rows="2"></textarea>
+        </div>
+        
+        <button type="submit">Log Expense</button>
+        <a href="{{ url_for('view_report') }}">View Report</a>
+    </form>
+</body>
+</html>

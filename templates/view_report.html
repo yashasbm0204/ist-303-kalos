@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unified Monthly Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .nav-links { margin-bottom: 20px; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .summary-box { border: 2px solid #007bff; padding: 15px; margin-bottom: 30px; border-radius: 8px; background-color: #f8faff; }
+        .overspent { color: red; font-weight: bold; }
+        .underbudget { color: green; font-weight: bold; }
+        .flash.success { color: green; }
+        .flash.error { color: red; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }
+        th { background-color: #e9ecef; }
+        .total-row { font-weight: bold; background-color: #e9ecef; }
+        .reset-button {
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-size: 0.9em;
+            margin-left: 30px; /* Separates it from regular links */
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Unified Budget Report</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="nav-links">
+        <a href="{{ url_for('set_limit') }}">Set Global Limit</a> 
+        <a href="{{ url_for('set_category_budget') }}">Set Category Budgets</a>
+        <a href="{{ url_for('log_expense') }}">Log New Expense</a>
+        
+        <!-- NEW FEATURE: Reset/Wipe Data -->
+        <form method="POST" action="{{ url_for('reset_data') }}" style="display: inline-block;">
+            <button type="submit" class="reset-button">
+                Clear All Data
+            </button>
+        </form>
+    </div>
+
+    <!-- Month Selector -->
+    <form action="{{ url_for('view_report') }}" method="GET" style="margin: 20px 0;">
+        <label for="month_year">View Different Month:</label>
+        <input type="month" id="month_year" name="month_year" onchange="this.form.submit()" value="{{ month_year }}">
+    </form>
+
+    <!-- Global Limit Tracking -->
+    <div class="summary-box">
+        <h2>Overall Spending Limit Tracker</h2>
+        {% if planned_limit > 0 %}
+            <p><strong>Total Limit Set:</strong> ${{ planned_limit | round(2) }}</p>
+            <p><strong>Total Actual Spent:</strong> ${{ total_actual_spent | round(2) }}</p>
+            <p>
+                <strong>Remaining Balance:</strong> 
+                <span class="{% if remaining_balance < 0 %}overspent{% else %}underbudget{% endif %}">
+                    ${{ remaining_balance | round(2) }}
+                </span>
+            </p>
+            {% if remaining_balance < 0 %}
+                <p class="overspent">🚨 Warning: You have overspent your total monthly limit!</p>
+            {% endif %}
+        {% else %}
+            <p>No Total Spending Limit set for this month. <a href="{{ url_for('set_limit') }}">Set one now.</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Category Breakdown -->
+    <h2>Category Budget Breakdown</h2>
+    {% if categories %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Planned ($)</th>
+                    <th>Actual Spent ($)</th>
+                    <th>Remaining/Variance ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    {% set data = report_data[category] %}
+                    <tr>
+                        <td>{{ category }}</td>
+                        <td>${{ data['planned'] | round(2) }}</td>
+                        <td>${{ data['actual'] | round(2) }}</td>
+                        <td class="{% if data['variance'] < 0 %}overspent{% elif data['variance'] > 0 %}underbudget{% endif %}">
+                            ${{ data['variance'] | round(2) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                
+                <!-- Category Totals Summary -->
+                <tr class="total-row">
+                    <td>TOTAL (Categories)</td>
+                    <td>${{ total_planned_category | round(2) }}</td>
+                    <td>${{ total_actual_category | round(2) }}</td>
+                    <td>${{ total_variance_category | round(2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p>No category budgets set or expenses logged for this month. <a href="{{ url_for('set_category_budget') }}">Set a category budget now.</a></p>
+    {% endif %}
+
+</body>
+</html>
