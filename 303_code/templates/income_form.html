@@ -41,5 +41,34 @@
 
     <button type="submit">Save Income</button>
   </form>
+  <hr style="margin:24px 0;">
+
+<h2>Saved Income</h2>
+
+{% if items and items|length > 0 %}
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Date</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Source</th>
+        <th style="text-align:right; padding:8px; border-bottom:1px solid #eee;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4;">{{ item.date }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4;">{{ item.source }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4; text-align:right;">
+          {{ '%.2f' % item.amount }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No income entries yet. Add your first one above.</p>
+{% endif %}
+
 </body>
 </html>
