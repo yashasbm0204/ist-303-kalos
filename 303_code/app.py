@@ -96,7 +96,7 @@ def create_app():
             return redirect(url_for("income"))
 
         items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
-        return render_template("income.html", items=items)
+        return render_template("income_form.html", items=items)
 
     # =========================
     # US4: Budgeting
