@@ -79,42 +79,41 @@ def create_app():
         flash("Expense deleted.", "success")
         return redirect(url_for("expenses"))
 
+ 
     # =========================
-# US3: Income Tracking
-# =========================
-@app.route("/income", methods=["GET", "POST"])
-def income():
-    if request.method == "POST":
-        try:
-            when = datetime.strptime(request.form["date"], "%Y-%m-%d").date()
-            amount = Decimal(request.form["amount"])
-            source = (request.form.get("source") or "Other").strip()
-            add_income(amount=amount, when=when, source=source)
-            flash("Income added.", "success")
-        except Exception as e:
-            flash(f"Failed to add income: {e}", "error")
-        return redirect(url_for("income"))
+    # US3: Income Tracking
+    # =========================
+    @app.route("/income", methods=["GET", "POST"])
+    def income():
+        if request.method == "POST":
+            try:
+                when = datetime.strptime(request.form["date"], "%Y-%m-%d").date()
+                amount = Decimal(request.form["amount"])
+                source = (request.form.get("source") or "Other").strip()
+                add_income(amount=amount, when=when, source=source)
+                flash("Income added.", "success")
+            except Exception as e:
+                flash(f"Failed to add income: {e}", "error")
+            return redirect(url_for("income"))
 
-    # 👉 Everything below here MUST be inside the function (indented)
-    # list items
-    items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
+        # list items
+        items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
 
-    # monthly totals
-    today = date.today()
-    year = int(request.args.get("year", today.year))
-    month = int(request.args.get("month", today.month))
-    income_total = monthly_total_income(year, month)
-    net_total = monthly_net_flow(year, month)
+        # monthly totals
+        today = date.today()
+        year = int(request.args.get("year", today.year))
+        month = int(request.args.get("month", today.month))
+        income_total = monthly_total_income(year, month)
+        net_total = monthly_net_flow(year, month)
 
-    return render_template(
-        "income_form.html",
-        items=items,
-        today=today.isoformat(),
-        year=year, month=month,
-        income_total=income_total,
-        net_total=net_total
-    )
-
+        return render_template(
+            "income_form.html",
+            items=items,
+            today=today.isoformat(),
+            year=year, month=month,
+            income_total=income_total,
+            net_total=net_total
+        )
     # =========================
     # US4: Budgeting
     # =========================
