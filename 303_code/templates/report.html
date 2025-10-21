@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+{% block content %}
+<h2>Monthly Report </h2>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-2"><input class="form-control" type="number" name="year" value="{{ year }}" min="2000" max="2100"></div>
+  <div class="col-md-2"><input class="form-control" type="number" name="month" value="{{ month }}" min="1" max="12"></div>
+  <div class="col-md-2"><button class="btn btn-secondary">Go</button></div>
+</form>
+
+<div class="row g-3">
+  <div class="col-md-4"><div class="p-3 bg-secondary rounded">Income: ${{ '%.2f'|format(total_income) }}</div></div>
+  <div class="col-md-4"><div class="p-3 bg-secondary rounded">Spend: ${{ '%.2f'|format(total_spend) }}</div></div>
+  <div class="col-md-4">
+    <div class="p-3 rounded {{ 'bg-success' if net>=0 else 'bg-danger' }}">Net: ${{ '%.2f'|format(net) }}</div>
+  </div>
+</div>
+
+<hr>
+<h3>Spend by Category</h3>
+<table class="table table-dark table-striped">
+  <thead><tr><th>Category</th><th>Amount</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr><td>{{ r.category }}</td><td>${{ '%.2f'|format(r.spent) }}</td></tr>
+  {% else %}
+    <tr><td colspan="2">No spending in this month.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

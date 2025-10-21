@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<h2>Categorization </h2>
+<form method="post" class="row g-2">
+  <div class="col-md-6"><input class="form-control" name="name" placeholder="New category name" required></div>
+  <div class="col-md-6"><button class="btn btn-primary">Add Category</button></div>
+</form>
+
+<hr>
+<ul class="list-group">
+  {% for c in items %}
+    <li class="list-group-item bg-dark text-light d-flex justify-content-between">
+      <span>{{ c.name }}</span>
+      <span class="text-secondary">ID: {{ c.id }}</span>
+    </li>
+  {% else %}
+    <li class="list-group-item bg-dark text-light">No categories yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
