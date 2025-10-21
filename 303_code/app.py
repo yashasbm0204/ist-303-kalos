@@ -95,8 +95,24 @@ def create_app():
                 flash(f"Failed to add income: {e}", "error")
             return redirect(url_for("income"))
 
-        items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
-        return render_template("income_form.html", items=items)
+          # list items
+    items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
+
+    # this-month totals
+    today = date.today()
+    year = int(request.args.get("year", today.year))
+    month = int(request.args.get("month", today.month))
+    income_total = monthly_total_income(year, month)   # your income total this month
+    net_total = monthly_net_flow(year, month)          # income - expenses this month
+
+    return render_template(
+        "income_form.html",
+        items=items,
+        today=today.isoformat(),
+        year=year, month=month,
+        income_total=income_total,
+        net_total=net_total
+    )
 
     # =========================
     # US4: Budgeting
