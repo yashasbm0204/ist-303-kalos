@@ -1,4 +1,3 @@
-
 # US1: Expense Tracking
 # US2: Categorization
 # US3: Income Tracking
@@ -96,24 +95,9 @@ def create_app():
                 flash(f"Failed to add income: {e}", "error")
             return redirect(url_for("income"))
 
-        # list items
         items = Income.query.order_by(Income.date.desc(), Income.id.desc()).all()
+        return render_template("income.html", items=items)
 
-        # monthly totals
-        today = date.today()
-        year = int(request.args.get("year", today.year))
-        month = int(request.args.get("month", today.month))
-        income_total = monthly_total_income(year, month)
-        net_total = monthly_net_flow(year, month)
-
-        return render_template(
-            "income_form.html",
-            items=items,
-            today=today.isoformat(),
-            year=year, month=month,
-            income_total=income_total,
-            net_total=net_total
-        )
     # =========================
     # US4: Budgeting
     # =========================
@@ -145,14 +129,24 @@ def create_app():
         today = date.today()
         year = int(request.args.get("year", today.year))
         month = int(request.args.get("month", today.month))
-        rows = monthly_spend_by_category(year, month)      # US1/US2
-        total_spend = monthly_total_spend(year, month)     # US1
-        total_income = monthly_total_income(year, month)   # US3
-        net = monthly_net_flow(year, month)                # US3–US1
+        
+        # Original query returns a list of Row objects
+        rows_from_db = monthly_spend_by_category(year, month)
+        
+        # *** FIX IS HERE ***
+        # Convert the list of Row objects to a list of simple dictionaries
+        # This new list is JSON serializable and safe to pass to the template
+        spend_data = [{"category": row.category, "spent": float(row.spent)} for row in rows_from_db]
+
+        total_spend = monthly_total_spend(year, month)
+        total_income = monthly_total_income(year, month)
+        net = monthly_net_flow(year, month)
+        
         return render_template(
             "report.html",
-            year=year, month=month,
-            rows=rows,
+            year=year, 
+            month=month,
+            rows=spend_data,  # Pass the corrected, JSON-friendly list
             total_spend=total_spend,
             total_income=total_income,
             net=net

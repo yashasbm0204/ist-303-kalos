@@ -1,0 +1,32 @@
+/* ... keep all your existing CSS above this ... */
+
+.chart-container {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem;
+  /* Let the inner wrapper control the height */
+  height: auto; 
+}
+
+/* *** ADD THESE NEW STYLES FOR THE FIX *** */
+.chart-wrapper {
+  position: relative;
+  height: 380px; /* Controls the canvas height */
+  width: 100%;
+}
+
+.activity-container {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 450px;
+  overflow-y: auto;
+}
+
+.activity-container .list-group-item {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
