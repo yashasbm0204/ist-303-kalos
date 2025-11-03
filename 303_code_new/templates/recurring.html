@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Track Recurring Charges and Subscriptions</h2>
+
+<form method="post" style="max-width:760px;padding:12px;border:1px solid #ddd;border-radius:10px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div>
+      <label>Name</label>
+      <input name="name" required>
+    </div>
+
+    <div>
+      <label>Type</label>
+      <select name="kind">
+        <option value="expense">Expense (subscription/bill)</option>
+        <option value="income">Income (paycheck/transfer)</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Amount</label>
+      <input type="number" step="0.01" name="amount" required>
+    </div>
+
+    <div>
+      <label>Category (for expense)</label>
+      <input name="category" placeholder="e.g., Utilities">
+    </div>
+
+    <div>
+      <label>Income source (for income)</label>
+      <input name="income_source" placeholder="e.g., Paycheck">
+    </div>
+
+    <div>
+      <label>Start date</label>
+      <input type="date" name="start_date" required>
+    </div>
+
+    <div>
+      <label>Frequency</label>
+      <select name="freq">
+        <option value="monthly">Monthly (same relative date)</option>
+        <option value="monthly_dom">Monthly (fixed day-of-month)</option>
+        <option value="biweekly">Biweekly</option>
+        <option value="weekly">Weekly</option>
+        <option value="every_n_days">Every N days</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Day of month (1–28)</label>
+      <input type="number" name="day_of_month" min="1" max="28">
+    </div>
+
+    <div>
+      <label>Every N days</label>
+      <input type="number" name="every_n_days" min="1">
+    </div>
+
+    <div>
+      <label>End date (optional)</label>
+      <input type="date" name="end_date">
+    </div>
+
+    <div style="grid-column:1/-1;">
+      <label><input type="checkbox" name="auto_post" checked> Auto-post when due</label>
+    </div>
+
+    <div style="grid-column:1/-1;">
+      <label>Notes</label>
+      <input name="notes">
+    </div>
+  </div>
+
+  <div style="margin-top:10px;">
+    <button type="submit">Save recurring item</button>
+    <a href="{{ url_for('run_recurring_task') }}" style="margin-left:12px;">Run due now</a>
+  </div>
+</form>
+
+<hr>
+
+<table style="width:100%;border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th style="text-align:left;border-bottom:1px solid #ddd;">Name</th>
+      <th style="text-align:left;border-bottom:1px solid #ddd;">Type</th>
+      <th style="text-align:right;border-bottom:1px solid #ddd;">Amount</th>
+      <th style="text-align:left;border-bottom:1px solid #ddd;">Next run</th>
+      <th style="text-align:left;border-bottom:1px solid #ddd;">Status</th>
+      <th style="text-align:left;border-bottom:1px solid #ddd;">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for it in items %}
+      <tr>
+        <td>{{ it.name }}</td>
+        <td>{{ it.kind }}</td>
+        <td style="text-align:right;">{{ '%.2f'|format(it.amount) }}</td>
+        <td>{{ it.next_run_date }}</td>
+        <td>{{ 'Active' if it.active else 'Paused' }}</td>
+        <td>
+          <a href="{{ url_for('recurring_run_now', id=it.id) }}">Run now</a> |
+          <a href="{{ url_for('recurring_toggle', id=it.id) }}">{{ 'Pause' if it.active else 'Resume' }}</a>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" style="padding:10px;color:#666;">No recurring items yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
