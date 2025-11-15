@@ -131,28 +131,79 @@ def create_app():
         today = date.today()
         year = int(request.args.get("year", today.year))
         month = int(request.args.get("month", today.month))
-        
+    
         # Original query returns a list of Row objects
         rows_from_db = monthly_spend_by_category(year, month)
-        
-        # *** FIX IS HERE ***
-        # Convert the list of Row objects to a list of simple dictionaries
-        # This new list is JSON serializable and safe to pass to the template
+    
+        # Convert to JSON-serializable format
         spend_data = [{"category": row.category, "spent": float(row.spent)} for row in rows_from_db]
-
+    
         total_spend = monthly_total_spend(year, month)
         total_income = monthly_total_income(year, month)
         net = monthly_net_flow(year, month)
+    
+        # Get recent expenses for activity feed
+        recent_expenses = Expense.query.filter(
+            db.func.strftime('%Y', Expense.date) == str(year),
+            db.func.strftime('%m', Expense.date) == str(month).zfill(2)
+        ).order_by(Expense.date.desc()).limit(5).all()
+    
+        # Get monthly trend data (last 6 months)
+        monthly_trends = []
+        for i in range(5, -1, -1):
+            # Calculate date for i months ago
+            if month - i <= 0:
+                trend_month = 12 + (month - i)
+                trend_year = year - 1
+            else:
+                trend_month = month - i
+                trend_year = year
         
+            m_spend = monthly_total_spend(trend_year, trend_month)
+            m_income = monthly_total_income(trend_year, trend_month)
+            monthly_trends.append({
+                "month": date(trend_year, trend_month, 1).strftime("%b %Y"),
+                "spend": float(m_spend),
+                "income": float(m_income)
+            })
+    
+        # Get budget data for current month
+        month_key = month_key_from_date(date(year, month, 1))
+        budgets_list = Budget.query.filter_by(month_key=month_key).all()
+        budget_data = []
+    
+        for budget in budgets_list:
+            if budget.category_id:
+                cat_name = budget.category.name
+                # Get actual spending for this category
+                cat_spend = sum([float(row["spent"]) for row in spend_data if row["category"] == cat_name], 0)
+                budget_data.append({
+                    "category": cat_name,
+                    "budget": float(budget.amount),
+                    "actual": cat_spend
+                })
+            else:
+                # Overall budget
+                budget_data.append({
+                    "category": "Overall",
+                    "budget": float(budget.amount),
+                    "actual": float(total_spend)
+                })
+    
         return render_template(
             "report.html",
             year=year, 
             month=month,
-            rows=spend_data,  # Pass the corrected, JSON-friendly list
+            rows=spend_data,
             total_spend=total_spend,
             total_income=total_income,
-            net=net
+            net=net,
+            recent_expenses=recent_expenses,
+            monthly_trends=monthly_trends,
+            budget_data=budget_data
         )
+
+    
     
     # =========================
     # US8: Recurring (subscriptions/bills & paychecks)
@@ -225,7 +276,6 @@ def create_app():
     
 
     return app
-
 
 if __name__ == "__main__":
     app = create_app()
