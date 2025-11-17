@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Add Income</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; max-width: 720px; margin: 0 auto; }
+    h1 { margin-bottom: .5rem; }
+    form { border:1px solid #ddd; border-radius:12px; padding:16px; }
+    label { display:block; font-weight:600; margin-top:12px; }
+    input, button { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; }
+    button { margin-top:16px; font-weight:600; cursor:pointer; }
+    .msg { margin: 12px 0; padding:10px; border-radius:8px; }
+    .msg.success { background:#e8f7ee; border:1px solid #bfe7cb; }
+    .msg.error { background:#ffefef; border:1px solid #f3b3b3; }
+  </style>
+</head>
+<body>
+  <h1>Add Income</h1>
+  <p>Fill out the form to save a new income entry.</p>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="msg {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="/income" novalidate>
+    <label for="amount">Amount</label>
+    <input id="amount" name="amount" type="number" step="0.01" min="0.01" placeholder="e.g., 1200.00" required>
+
+    <label for="date">Date</label>
+    <input id="date" name="date" type="date" value="{{ today }}" required>
+
+    <label for="source">Source</label>
+    <input id="source" name="source" type="text" placeholder="e.g., Paycheck, Gift" required>
+
+    <button type="submit">Save Income</button>
+  </form>
+  <hr style="margin:24px 0;">
+<div style="margin-top:16px; padding:12px; border:1px solid #eee; border-radius:10px;">
+  <h2 style="margin-top:0;">This Month Summary ({{ year }}-{{ '%02d' % month }})</h2>
+  <div style="display:flex; gap:16px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:220px; padding:12px; border:1px solid #f0f0f0; border-radius:10px;">
+      <div style="font-weight:600;">Total Income</div>
+      <div style="font-size:1.25rem; margin-top:6px;">
+        ${{ '%.2f' % income_total }}
+      </div>
+    </div>
+    <div style="flex:1; min-width:220px; padding:12px; border:1px solid #f0f0f0; border-radius:10px;">
+      <div style="font-weight:600;">Net (Income − Expenses)</div>
+      <div style="font-size:1.25rem; margin-top:6px;">
+        ${{ '%.2f' % net_total }}
+      </div>
+      <div style="color:#666; font-size:.9rem; margin-top:6px;">
+        (Expenses are pulled from the shared table.)
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Saved Income</h2>
+
+{% if items and items|length > 0 %}
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Date</th>
+        <th style="text-align:left; padding:8px; border-bottom:1px solid #eee;">Source</th>
+        <th style="text-align:right; padding:8px; border-bottom:1px solid #eee;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4;">{{ item.date }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4;">{{ item.source }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f4f4f4; text-align:right;">
+          {{ '%.2f' % item.amount }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No income entries yet. Add your first one above.</p>
+{% endif %}
+
+</body>
+</html>
