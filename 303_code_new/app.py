@@ -2,6 +2,7 @@
 # US2: Categorization
 # US3: Income Tracking
 # US4: Budgeting
+# US5: Savings Goal
 
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -164,6 +165,44 @@ def create_app():
 
         items = Budget.query.order_by(Budget.month_key.desc()).all()
         return render_template("budgets.html", items=items, categories=all_categories())
+    # =========================
+    # US5: Savings Goal
+    # =========================
+    @app.route("/goals", methods=["GET", "POST"])
+    @login_required
+    def goals():
+        # figure out which month/year we're looking at
+        today = date.today()
+        year = int(request.args.get("year", today.year))
+        month = int(request.args.get("month", today.month))
+
+        if request.method == "POST":
+            try:
+                # read form values
+                name = (request.form.get("name") or "").strip()
+                target_raw = request.form.get("target_amount") or "0"
+                target = Decimal(target_raw)
+
+                if not name or target <= 0:
+                    raise ValueError("Goal name and a positive target are required.")
+
+                # create the goal in the database
+                create_savings_goal(name=name, target_amount=target)
+                flash("Savings goal saved.", "success")
+            except Exception as e:
+                flash(f"Failed to save savings goal: {e}", "error")
+
+            # reload same month/year view
+            return redirect(url_for("goals", year=year, month=month))
+
+        # GET: show progress for this month
+        progress = goal_progress_for_month(year, month)
+        return render_template(
+            "goals.html",
+            year=year,
+            month=month,
+            progress=progress,
+        )
 
     # =========================
     # Report (US1–US4 summary)
