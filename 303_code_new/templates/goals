@@ -46,34 +46,34 @@
 
   <h2>Progress for {{ year }}-{{ "%02d"|format(month) }}</h2>
 
-  {% if progress.goal %}
+  {% if active_goal %}
     <p>
       Current goal:
-      <strong>{{ progress.goal.name }}</strong><br>
-      Target: ${{ "%.2f"|format(progress.target) }}<br>
+      <strong>{{ active_goal.name }}</strong><br>
+      Target: ${{ "%.2f"|format(target) }}<br>
       Net savings this month (income − expenses):
-      ${{ "%.2f"|format(progress.current_savings) }}
+      ${{ "%.2f"|format(current_savings) }}
     </p>
 
     <!-- Progress bar -->
     <div class="progress" style="height: 24px; margin-top: 8px;">
       <div class="progress-bar"
            role="progressbar"
-           style="width: {{ progress.percent }}%;"
-           aria-valuenow="{{ progress.percent }}"
+           style="width: {{ percent }}%;"
+           aria-valuenow="{{ percent }}"
            aria-valuemin="0"
            aria-valuemax="100">
-        {{ "%.1f"|format(progress.percent) }}%
+        {{ "%.1f"|format(percent) }}%
       </div>
     </div>
 
-    {% if progress.reached %}
+    {% if reached %}
       <div class="alert alert-success" role="alert" style="margin-top: 12px;">
         🎉 You reached your savings goal for this month!
       </div>
     {% else %}
       <p style="margin-top: 12px;">
-        Keep going—you’re {{ "%.1f"|format(progress.percent) }}% of the way there.
+        Keep going—you’re {{ "%.1f"|format(percent) }}% of the way there.
       </p>
     {% endif %}
   {% else %}
