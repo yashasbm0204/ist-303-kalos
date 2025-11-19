@@ -16,8 +16,23 @@
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('view_report') }}"><i class="bi bi-pie-chart-fill me-2"></i>Dashboard</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('expenses') }}"><i class="bi bi-box-arrow-up-right me-2"></i>Expenses</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('income') }}"><i class="bi bi-box-arrow-in-down-left me-2"></i>Income</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('budgets') }}"><i class="bi bi-bullseye me-2"></i>Budgets</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('categories') }}"><i class="bi bi-tags-fill me-2"></i>Categories</a></li>
+<li class="nav-item">
+  <a class="nav-link text-white" href="{{ url_for('budgets') }}">
+    <i class="bi bi-bullseye me-2"></i>Budgets
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link text-white" href="{{ url_for('goals') }}">
+    <i class="bi bi-piggy-bank-fill me-2"></i>Goals
+  </a>
+</li>
+
+<li class="nav-item">
+  <a class="nav-link text-white" href="{{ url_for('categories') }}">
+    <i class="bi bi-tags-fill me-2"></i>Categories
+  </a>
+</li>
         <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('recurring') }}"><i class="bi bi-cash-coin me-2"></i>Recurring</a></li>
         <li class="nav-item mt-3">
          <a class="nav-link text-white" href="{{ url_for('logout') }}">
