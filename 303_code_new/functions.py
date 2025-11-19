@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from sqlalchemy import func
 from database import db
-from models import Category, Expense, Budget, Income
+from models import Category, Expense, Budget, Income, SavingsGoal
 
 
 def month_bounds(year: int, month: int):
@@ -102,7 +102,54 @@ def monthly_total_income(year: int, month: int) -> float:
 # Net flow ties US3 (income) with US1 (spend)
 def monthly_net_flow(year: int, month: int) -> float:
     return monthly_total_income(year, month) - monthly_total_spend(year, month)
+    # =========================
+# US5: Savings Goal helpers
+# =========================
+def create_savings_goal(name: str, target_amount: Decimal) -> SavingsGoal:
+    """Create and store a new savings goal."""
+    goal = SavingsGoal(name=name.strip(), target_amount=target_amount)
+    db.session.add(goal)
+    db.session.commit()
+    return goal
 
+def get_active_goal() -> SavingsGoal | None:
+    """Return the most recently created active goal (or None)."""
+    return (
+        SavingsGoal.query
+        .filter_by(is_active=True)
+        .order_by(SavingsGoal.created_at.desc(), SavingsGoal.id.desc())
+        .first()
+    )
+
+def goal_progress_for_month(year: int, month: int) -> dict:
+    """
+    Use income - expenses (net flow) for the given month
+    and compare it to the active goal's target.
+    """
+    goal = get_active_goal()
+    if not goal:
+        return {
+            "goal": None,
+            "current_savings": 0.0,
+            "target": 0.0,
+            "percent": 0.0,
+            "reached": False,
+        }
+
+    current = monthly_net_flow(year, month)
+    target = float(goal.target_amount)
+    if target <= 0:
+        percent = 0.0
+    else:
+        percent = max(0.0, min(100.0, (current / target) * 100.0))
+
+    return {
+        "goal": goal,
+        "current_savings": current,
+        "target": target,
+        "percent": percent,
+        "reached": percent >= 100.0,
+    }
 # =========================
 # US8: Recurring Items
 # =========================
