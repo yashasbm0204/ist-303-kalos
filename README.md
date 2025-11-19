@@ -123,12 +123,7 @@ Open `http://127.0.0.1:5000/login` and sign in:
 
 ## How to Test
 
-Run all tests ( `code_test.py`):
-```bash
-pytest -q
-```
-
-Run a specific file:
+Run test file:
 ```bash
 pytest code_test.py -q
 ```
