@@ -9,7 +9,7 @@ from functools import wraps
 from datetime import date, datetime
 from decimal import Decimal
 from database import db, init_db
-from models import Category, Expense, Income, Budget
+from models import Category, Expense, Income, Budget, SavingsGoal
 from functions import (
     # US2 helpers
     all_categories, get_or_create_category,
@@ -21,6 +21,10 @@ from functions import (
     monthly_spend_by_category, monthly_total_spend,
     # US3 helpers + net
     add_income, monthly_total_income, monthly_net_flow,
+    # US5 helpers
+    create_savings_goal, goal_progress_for_month
+)
+
 
     add_recurring_item, update_recurring_item, delete_recurring_item, post_due_recurring, predicted_totals_for_month, _advance_date, _post_single
 )
