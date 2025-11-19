@@ -1,5 +1,6 @@
 
 from database import db
+from datetime import date
 
 # US2: Categorization
 class Category(db.Model):
