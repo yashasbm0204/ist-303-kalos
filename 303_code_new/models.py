@@ -39,8 +39,13 @@ class Budget(db.Model):
         db.UniqueConstraint("month_key", "category_id", name="uq_budget_month_category"),
     )
 
-
-
+# US5: Savings Goal
+class SavingsGoal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    target_amount = db.Column(db.Numeric(12, 2), nullable=False)
+    created_at = db.Column(db.Date, nullable=False, default=date.today)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
 
 # US8: Recurring Items
