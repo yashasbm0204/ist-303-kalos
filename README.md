@@ -76,13 +76,6 @@ Responsible: **Nan**
 - **Estimate:** 4-5 hours  
   *(design and implement interface for inputting recurring charges/deposits and integrate with budget functionality)*
 
-
-  
-
-# Personal Finance Tracker (Flask)
-
-A minimal Flask app to track **expenses, income, budgets, savings goals, and recurring items** with a simple login. Uses SQLite via SQLAlchemy and renders basic monthly reports.
-
 ---
 
 ## Requirements
