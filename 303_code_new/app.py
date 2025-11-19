@@ -21,13 +21,13 @@ from functions import (
     monthly_spend_by_category, monthly_total_spend,
     # US3 helpers + net
     add_income, monthly_total_income, monthly_net_flow,
-    # US5 helpers
-    create_savings_goal, goal_progress_for_month
+    # US5 helpers (Savings Goal)
+    create_savings_goal, goal_progress_for_month,
+    # US8 helpers (Recurring)
+    add_recurring_item, update_recurring_item, delete_recurring_item,
+    post_due_recurring, predicted_totals_for_month, _advance_date, _post_single,
 )
 
-
-    add_recurring_item, update_recurring_item, delete_recurring_item, post_due_recurring, predicted_totals_for_month, _advance_date, _post_single
-)
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(*args, **kwargs):
@@ -167,6 +167,61 @@ def create_app():
 
         items = Budget.query.order_by(Budget.month_key.desc()).all()
         return render_template("budgets.html", items=items, categories=all_categories())
+
+    # =========================
+    # US5: Savings Goal
+    # =========================
+    @app.route("/goals", methods=["GET", "POST"])
+    @login_required
+    def goals():
+        # figure out which month we're looking at (default = this month)
+        today = date.today()
+        year = int(request.args.get("year", today.year))
+        month = int(request.args.get("month", today.month))
+
+        # --- handle form submit (create a new goal) ---
+        if request.method == "POST":
+            try:
+                name = (request.form.get("name") or "").strip()
+                target_raw = request.form.get("target_amount") or "0"
+                target = Decimal(target_raw)
+
+                if not name or target <= 0:
+                    flash("Please enter a goal name and a positive target amount.", "error")
+                else:
+                    create_savings_goal(name=name, target_amount=target)
+                    flash("Savings goal created.", "success")
+
+                # stay on the same month/year after submit
+                return redirect(url_for("goals", year=year, month=month))
+
+            except Exception as e:
+                flash(f"Failed to save savings goal: {e}", "error")
+                return redirect(url_for("goals", year=year, month=month))
+
+        # --- calculate progress for this month ---
+        progress = goal_progress_for_month(year, month)
+        active_goal = progress["goal"]
+        current_savings = progress["current_savings"]
+        target = progress["target"]
+        percent = progress["percent"]
+        reached = progress["reached"]
+
+        # (optional) show list of all goals ever created
+        all_goals = SavingsGoal.query.order_by(SavingsGoal.created_at.desc()).all()
+
+        return render_template(
+            "goals.html",
+            year=year,
+            month=month,
+            active_goal=active_goal,
+            current_savings=current_savings,
+            target=target,
+            percent=percent,
+            reached=reached,
+            goals=all_goals,
+        )
+
 
     # =========================
     # Report (US1–US4 summary)
