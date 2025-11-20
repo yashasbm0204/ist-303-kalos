@@ -23,7 +23,9 @@ from functions import (
     add_income, monthly_total_income, monthly_net_flow,
     # US5 helpers
     create_savings_goal, goal_progress_for_month,
-    add_recurring_item, update_recurring_item, delete_recurring_item, post_due_recurring, predicted_totals_for_month, _advance_date, _post_single
+    add_recurring_item, update_recurring_item, delete_recurring_item, post_due_recurring, predicted_totals_for_month, _advance_date, _post_single, 
+    get_active_goal
+
 )
 def login_required(view_func):
     @wraps(view_func)
@@ -63,6 +65,44 @@ def create_app():
 
         return render_template("login.html")
 
+    @app.route("/goals", methods=["GET", "POST"])
+    @login_required
+    def goals():
+        # choose which year/month to look at (default: current)
+        today = date.today()
+        year = int(request.args.get("year", today.year))
+        month = int(request.args.get("month", today.month))
+
+        # Handle form submit: create/update savings goal
+        if request.method == "POST":
+            name = (request.form.get("name") or "").strip()
+            target_amount_str = request.form.get("target_amount") or "0"
+
+            try:
+                target_amount = Decimal(target_amount_str)
+                create_savings_goal(name, target_amount)
+                flash("Savings goal saved.", "success")
+            except Exception as e:
+                flash(f"Failed to save savings goal: {e}", "error")
+
+            # redirect so refresh doesn't resubmit the form
+            return redirect(url_for("goals", year=year, month=month))
+
+        # For GET: compute progress for this month
+        progress = goal_progress_for_month(year, month)
+
+        return render_template(
+            "goals.html",
+            year=year,
+            month=month,
+            active_goal=progress["goal"],
+            target=progress["target"],
+            current_savings=progress["current_savings"],
+            percent=progress["percent"],
+            reached=progress["reached"],
+        )
+
+    
     @app.get("/logout")
     def logout():
         session.clear()
