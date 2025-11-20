@@ -145,6 +145,10 @@ open htmlcov/index.html   # Windows: start htmlcov/index.html
 
 ## The Three most important things we learned about Software development
 Environment isolation critical for dependency management
+
 Regular git operations prevent repository state conflicts
+
 API contract validation ensures frontend-backend compatibility
+
 Cross-platform testing identifies environment-specific issues early
+
